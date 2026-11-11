@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3040 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a3040;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #3b4356;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-950 text-slate-200 antialiased;
+  background-image:
+    radial-gradient(60rem 40rem at 15% -10%, rgba(91, 124, 250, 0.10), transparent 60%),
+    radial-gradient(50rem 30rem at 95% 0%, rgba(52, 211, 153, 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* Markdown rendering inside assistant bubbles */
+.prose-synax {
+  @apply text-[15px] leading-7 text-slate-200;
+}
+.prose-synax p {
+  @apply my-3;
+}
+.prose-synax p:first-child {
+  @apply mt-0;
+}
+.prose-synax p:last-child {
+  @apply mb-0;
+}
+.prose-synax h1,
+.prose-synax h2,
+.prose-synax h3 {
+  @apply font-semibold text-white mt-5 mb-2 leading-snug;
+}
+.prose-synax h1 {
+  @apply text-xl;
+}
+.prose-synax h2 {
+  @apply text-lg;
+}
+.prose-synax h3 {
+  @apply text-base;
+}
+.prose-synax ul,
+.prose-synax ol {
+  @apply my-3 pl-5 space-y-1.5;
+}
+.prose-synax ul {
+  @apply list-disc;
+}
+.prose-synax ol {
+  @apply list-decimal;
+}
+.prose-synax a {
+  @apply text-accent-400 underline underline-offset-2 hover:text-accent-300;
+}
+.prose-synax code {
+  @apply rounded bg-ink-800 px-1.5 py-0.5 font-mono text-[13px] text-accent-300;
+}
+.prose-synax pre {
+  @apply my-4 overflow-x-auto rounded-xl border border-ink-700 bg-ink-900 p-4;
+}
+.prose-synax pre code {
+  @apply bg-transparent p-0 text-[13px] text-slate-200;
+}
+.prose-synax blockquote {
+  @apply my-4 border-l-2 border-ink-600 pl-4 text-slate-400;
+}
+.prose-synax table {
+  @apply my-4 w-full border-collapse text-sm;
+}
+.prose-synax th,
+.prose-synax td {
+  @apply border border-ink-700 px-3 py-2 text-left;
+}
+.prose-synax th {
+  @apply bg-ink-800 font-semibold text-white;
+}
+.prose-synax hr {
+  @apply my-6 border-ink-700;
+}
+
+/* Focus ring, consistent across controls */
+.focus-ring {
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950;
+}
