@@ -57,4 +57,6 @@ async def list_models(
         if m.get("id")
     ]
     models.sort(key=lambda m: m["name"] or "")
+    # Free models first: they are what actually works on a $0 balance.
+    models.sort(key=lambda m: 0 if str(m["id"]).endswith(":free") else 1)
     return {"source": "openrouter", "configured": True, "models": models[:limit]}

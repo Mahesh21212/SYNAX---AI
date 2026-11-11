@@ -20,6 +20,26 @@ logger = logging.getLogger(__name__)
 class OpenRouterError(RuntimeError):
     """Raised when the provider rejects a request or is unreachable."""
 
+    def __init__(self, message: str, status_code: int | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+
+    @property
+    def model_unavailable(self) -> bool:
+        """True when the failure is 'this model no longer exists'."""
+        text = str(self).lower()
+        return (
+            self.status_code == 404
+            or "no longer available" in text
+            or (self.status_code == 400 and "not a valid model" in text)
+        )
+
+    @property
+    def out_of_credits(self) -> bool:
+        """True when the account cannot afford the request."""
+        text = str(self).lower()
+        return self.status_code == 402 or "requires more credits" in text
+
 
 def _headers() -> dict[str, str]:
     if not settings.openrouter_configured:
@@ -63,7 +83,17 @@ async def complete(
 
     if resp.status_code >= 400:
         detail = resp.text[:500]
-        raise OpenRouterError(f"OpenRouter {resp.status_code}: {detail}")
+        if resp.status_code == 402:
+            raise OpenRouterError(
+                "OpenRouter credits exhausted. The free models in the default "
+                "config cost nothing, but this request used a paid model. "
+                "Either switch the model in the picker to a ':free' one, or add "
+                "credits at https://openrouter.ai/settings/credits",
+                resp.status_code,
+            )
+        raise OpenRouterError(
+            f"OpenRouter {resp.status_code}: {detail}", resp.status_code
+        )
 
     return resp.json()
 
@@ -95,7 +125,9 @@ async def stream(
             ) as resp:
                 if resp.status_code >= 400:
                     body = (await resp.aread()).decode("utf-8", "replace")[:500]
-                    raise OpenRouterError(f"OpenRouter {resp.status_code}: {body}")
+                    raise OpenRouterError(
+                        f"OpenRouter {resp.status_code}: {body}", resp.status_code
+                    )
 
                 async for line in resp.aiter_lines():
                     if not line or not line.startswith("data: "):

@@ -18,7 +18,7 @@ import type {
   Message,
 } from '@/lib/types';
 
-const DEFAULT_MODEL = 'anthropic/claude-3.5-sonnet';
+const DEFAULT_MODEL = 'baidu/ernie-5.5-flash-preview:free';
 
 function tempId(): string {
   return `tmp-${Math.random().toString(36).slice(2, 10)}`;

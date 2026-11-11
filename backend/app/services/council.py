@@ -1,4 +1,4 @@
-"""SYNAX AI multi-agent council.
+﻿"""SYNAX AI multi-agent council.
 
 The council is a small, explicit pipeline rather than a black box:
 
@@ -125,7 +125,7 @@ async def _call(
     doc_block: str,
     model: str | None = None,
     temperature: float = 0.6,
-    max_tokens: int = 1600,
+    max_tokens: int = 1000,
 ) -> tuple[str, dict[str, Any]]:
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": _system(agent, memory_block, doc_block)}
@@ -133,12 +133,31 @@ async def _call(
     messages.extend(_history_block(history))
     messages.append({"role": "user", "content": user_message})
 
-    payload = await openrouter.complete(
-        model=model or AGENT_MODEL[agent],
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
+    chosen = model or AGENT_MODEL[agent]
+    try:
+        payload = await openrouter.complete(
+            model=chosen,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+    except openrouter.OpenRouterError as exc:
+        # A retired or unknown model should not take down the whole run.
+        if not exc.model_unavailable or chosen == settings.synax_fallback_model:
+            raise
+        logger.warning(
+            "Model %s unavailable (%s); retrying with %s",
+            chosen,
+            exc,
+            settings.synax_fallback_model,
+        )
+        payload = await openrouter.complete(
+            model=settings.synax_fallback_model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
     return openrouter.text_of(payload).strip(), payload
 
 
@@ -206,7 +225,7 @@ async def run(
             memory_block=memory_block,
             doc_block=doc_block,
             model=model,
-            max_tokens=2400,
+            max_tokens=1200,
         )
         _accumulate(usage, payload)
         steps.append(
@@ -238,7 +257,7 @@ async def run(
                 memory_block=memory_block,
                 doc_block="",
                 temperature=0.2,
-                max_tokens=400,
+                max_tokens=350,
             )
             _accumulate(usage, payload)
             plan = _parse_plan(raw)
@@ -288,7 +307,7 @@ async def run(
                 memory_block=memory_block,
                 doc_block=doc_block,
                 temperature=0.5,
-                max_tokens=1400,
+                max_tokens=1600,
             )
             _accumulate(usage, payload)
             return (
@@ -331,7 +350,7 @@ async def run(
             memory_block=memory_block,
             doc_block=doc_block,
             model=model,
-            max_tokens=2400,
+            max_tokens=1200,
         )
         _accumulate(usage, payload)
         steps.append(
@@ -363,7 +382,7 @@ async def run(
             memory_block=memory_block,
             doc_block="",
             temperature=0.2,
-            max_tokens=700,
+            max_tokens=500,
         )
         _accumulate(usage, payload)
         steps.append(
@@ -403,7 +422,7 @@ async def run(
         doc_block=doc_block,
         model=model,
         temperature=0.6,
-        max_tokens=2600,
+        max_tokens=1400,
     )
     _accumulate(usage, payload)
     steps.append(

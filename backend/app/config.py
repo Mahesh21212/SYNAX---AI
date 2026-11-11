@@ -25,12 +25,16 @@ class Settings(BaseSettings):
     openrouter_site_name: str = "SYNAX AI"
 
     # --- Agent council models --------------------------------------------
-    synax_planner_model: str = "anthropic/claude-3.5-sonnet"
-    synax_researcher_model: str = "perplexity/llama-3.1-sonar-large-128k-online"
-    synax_analyst_model: str = "anthropic/claude-3.5-sonnet"
-    synax_writer_model: str = "anthropic/claude-3.5-sonnet"
-    synax_critic_model: str = "openai/gpt-4o-mini"
-    synax_default_model: str = "anthropic/claude-3.5-sonnet"
+    # Defaults target OpenRouter's free tier so the app runs on a $0 balance.
+    # Override any of these in .env to use paid models.
+    synax_planner_model: str = "baidu/ernie-5.5-flash-preview:free"
+    synax_researcher_model: str = "recursive/flint-v1.0:free"
+    synax_analyst_model: str = "baidu/ernie-5.5-flash-preview:free"
+    synax_writer_model: str = "baidu/ernie-5.5-flash-preview:free"
+    synax_critic_model: str = "dots-studio/dots-3-note-preview:free"
+    synax_default_model: str = "baidu/ernie-5.5-flash-preview:free"
+    # Used when a configured model is retired or unavailable upstream.
+    synax_fallback_model: str = "recursive/flint-v1.0:free"
 
     # --- Database ---------------------------------------------------------
     mongodb_uri: str = "mongodb://localhost:27017"
