@@ -127,7 +127,6 @@ If the planner fails, the council falls back to a default plan. If every special
 | Models | OpenRouter | One API for many providers, no vendor lock-in |
 | Voice | Web Speech API | No third-party service, no extra key |
 | Tests | pytest + mongomock-motor | Runs with no database server and no network |
-
 ## Quick start
 
 **Requirements:** Node.js 20+, Python 3.11+, and MongoDB 6+ (local, Docker, or Atlas).
@@ -267,8 +266,9 @@ synax-ai/
 │   │       ├── openrouter.py     Provider client
 │   │       ├── documents.py      PDF/DOCX/XLSX/CSV extraction
 │   │       └── memory.py         Memory ranking
-│   ├── tests/                    26 tests, no network required
+│   ├── tests/                    49 tests, no network required
 │   ├── requirements.txt
+│   ├── requirements-dev.txt      Test-only dependencies
 │   └── .env.example
 ├── frontend/
 │   ├── app/
@@ -289,10 +289,21 @@ synax-ai/
 
 ```bash
 cd backend
+pip install -r requirements-dev.txt   # includes the in-memory Mongo used by tests
 pytest -q
 ```
 
-26 tests covering planner JSON parsing (including malformed output), document extraction for every supported format, memory ranking, and the API surface. They use an in-memory Mongo, so no database server and no API key are needed.
+49 tests covering planner JSON parsing (including malformed output), the full
+council pipeline with a mocked provider, every degradation path, document
+extraction for each supported format, memory ranking, the chat persistence
+path, and the API surface. They use an in-memory Mongo, so no database server
+and no API key are needed.
+
+There is also a live end-to-end check that exercises a running stack:
+
+```bash
+python scripts/smoke.py http://127.0.0.1:8000
+```
 
 Frontend:
 
